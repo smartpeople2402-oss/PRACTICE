@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRE Master: Theme Edition</title>
+    <title>THATS SIMPLE</title>
     <style>
-        /* CSS VARIABLES (Default: Classic) */
+        /* CSS VARIABLES */
         :root { 
             --bg: #0f172a; 
             --card: #1e293b; 
@@ -32,7 +32,7 @@
 
         /* GAME CONTENT */
         #main-app { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .tabs { display: flex; gap: 10px; margin-top: 20px; }
+        .tabs { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         .tab-btn { background: var(--card); color: var(--muted); border: 1px solid #334155; padding: 10px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; transition: 0.3s; }
         .tab-btn.active { background: var(--primary); color: var(--bg); border-color: var(--primary); }
         .content-container { background: var(--card); padding: 2.5rem; border-radius: 0 0 20px 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 90%; max-width: 800px; border: 1px solid #334155; margin-bottom: 40px; position: relative; transition: background-color 0.3s; }
@@ -62,7 +62,6 @@
         input[type=range] { width: 70px; height: 5px; background: #475569; border-radius: 5px; outline: none; -webkit-appearance: none; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: 0.2s; }
         
-        /* NEW THEME SELECTOR */
         .theme-select { margin-left: 15px; padding: 5px; border-radius: 5px; background: var(--bg); color: var(--text); border: 1px solid #475569; }
 
         /* GAME UI */
@@ -80,6 +79,22 @@
         #feedback { text-align: center; margin-top: 15px; font-weight: bold; height: 24px; }
         .stats { display: flex; justify-content: space-between; margin-top: 25px; font-size: 0.85rem; color: var(--muted); border-top: 1px solid #334155; padding-top: 15px; }
         .streak-stat { color: var(--warning); font-weight: bold; }
+
+        /* FLASHCARD STYLES */
+        .flashcard-container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .flashcard { 
+            width: 100%; height: 250px; background: var(--bg); border: 2px solid var(--primary); border-radius: 15px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
+            cursor: pointer; position: relative; transition: transform 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            padding: 20px; box-sizing: border-box;
+        }
+        .flashcard:hover { transform: scale(1.02); }
+        .fc-word { font-size: 2.5rem; color: var(--text); font-weight: bold; margin-bottom: 10px; }
+        .fc-meaning { font-size: 1.4rem; color: var(--primary); margin-bottom: 15px; }
+        .fc-sentence { font-size: 1rem; color: var(--muted); font-style: italic; }
+        .fc-hint { position: absolute; bottom: 10px; font-size: 0.8rem; color: var(--muted); opacity: 0.7; }
+        .fc-controls { display: flex; gap: 20px; margin-top: 20px; }
+        .fc-speak-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; position: absolute; top: 10px; right: 10px; z-index: 10; }
 
         /* TABLE */
         .table-wrapper { max-height: 500px; overflow-y: auto; margin-top: 10px; }
@@ -99,7 +114,7 @@
 </audio>
 
 <div id="intro-screen">
-    <div class="intro-title">GRE Master</div>
+    <div class="intro-title">HIIII ICHA</div>
     <div class="intro-subtitle">Select Your Challenge</div>
     <div class="mode-container">
         <div class="mode-card" onclick="startGame('practice')">
@@ -118,6 +133,7 @@
 <div id="main-app" style="display:none;">
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab(event, 'game-tab')">Vocab Test</button>
+        <button class="tab-btn" id="tab-flash-btn" onclick="openTab(event, 'flashcard-tab')">Flashcards</button>
         <button class="tab-btn" id="tab-list-btn" onclick="openTab(event, 'list-tab')">Word List</button>
     </div>
 
@@ -152,7 +168,7 @@
                 <div class="timer-display" id="timer-text">30</div>
             </div>
 
-            <h1>GRE Bridge</h1>
+            <h1>PRACTICE</h1>
             <div class="definition-box" id="display-defn">Loading...</div>
             <div id="hint-area" class="hint-display"></div>
             <input type="text" id="answer-input" placeholder="Type answer..." autocomplete="off">
@@ -166,6 +182,29 @@
                 <span>Progress: <span id="current-idx">1</span>/250+</span>
                 <span class="streak-stat">🔥 Streak: <span id="streak">0</span></span>
                 <span>Score: <span id="score">0</span></span>
+            </div>
+        </div>
+
+        <div id="flashcard-tab" class="tab-content">
+            <h1>Training Mode</h1>
+            <div class="flashcard-container">
+                <div class="flashcard" onclick="flipFlashcard()">
+                    <button class="fc-speak-btn" onclick="event.stopPropagation(); speakFC()">🔊</button>
+                    <div id="fc-front">
+                        <div class="fc-word" id="fc-word-text">Word</div>
+                    </div>
+                    <div id="fc-back" style="display:none;">
+                        <div class="fc-meaning" id="fc-meaning-text">Meaning</div>
+                        <div class="fc-sentence" id="fc-sentence-text">Sentence</div>
+                    </div>
+                    <div class="fc-hint">(Click card to flip)</div>
+                </div>
+                
+                <div class="fc-controls">
+                    <button class="action-btn" onclick="prevFlashcard()">← Previous</button>
+                    <span style="align-self:center; font-weight:bold; color:var(--muted)">Card <span id="fc-count">1</span></span>
+                    <button class="action-btn" onclick="nextFlashcard()">Next →</button>
+                </div>
             </div>
         </div>
 
@@ -507,7 +546,58 @@
     let isTimerEnabled = true;
     let currentMode = 'practice'; 
 
-    // MUSIC LOGIC
+    // --- FLASHCARD LOGIC ---
+    let fcIndex = 0;
+    let isFlipped = false;
+
+    function updateFlashcard() {
+        const item = gameData[fcIndex];
+        const front = document.getElementById('fc-front');
+        const back = document.getElementById('fc-back');
+        
+        // Reset state
+        isFlipped = false;
+        front.style.display = 'block';
+        back.style.display = 'none';
+        
+        // Update Text
+        document.getElementById('fc-word-text').innerText = item.eng;
+        document.getElementById('fc-meaning-text').innerText = item.idn;
+        document.getElementById('fc-sentence-text').innerText = `"${item.ex}"`;
+        document.getElementById('fc-count').innerText = `${fcIndex + 1}/${gameData.length}`;
+    }
+
+    function flipFlashcard() {
+        const front = document.getElementById('fc-front');
+        const back = document.getElementById('fc-back');
+        
+        if (isFlipped) {
+            front.style.display = 'block';
+            back.style.display = 'none';
+        } else {
+            front.style.display = 'none';
+            back.style.display = 'block';
+        }
+        isFlipped = !isFlipped;
+    }
+
+    function nextFlashcard() {
+        if (fcIndex < gameData.length - 1) fcIndex++;
+        else fcIndex = 0; // Loop back
+        updateFlashcard();
+    }
+
+    function prevFlashcard() {
+        if (fcIndex > 0) fcIndex--;
+        else fcIndex = gameData.length - 1; // Loop to end
+        updateFlashcard();
+    }
+
+    function speakFC() {
+        speak(gameData[fcIndex].eng);
+    }
+
+    // --- MUSIC LOGIC ---
     const bgMusic = document.getElementById('bg-music');
     bgMusic.volume = 0.3;
     
@@ -526,6 +616,7 @@
         bgMusic.volume = vol;
     }
 
+    // --- GAME START ---
     function startGame(mode) {
         currentMode = mode;
         document.getElementById('intro-screen').style.opacity = '0';
@@ -538,17 +629,21 @@
             document.getElementById('intro-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex'; 
             
+            // EXAM MODE CHECKS
             if (currentMode === 'exam') {
                 document.getElementById('btn-hint').style.display = 'none'; 
                 document.getElementById('timer-toggle').checked = true;
                 document.getElementById('timer-toggle').disabled = true;
                 document.getElementById('time-setting').disabled = true;
                 document.getElementById('tab-list-btn').style.display = 'none'; 
+                document.getElementById('tab-flash-btn').style.display = 'none'; // Hide Flashcards in Exam
                 isTimerEnabled = true;
             } else {
                 document.getElementById('tab-list-btn').style.display = 'block';
+                document.getElementById('tab-flash-btn').style.display = 'block';
             }
             initGame();
+            updateFlashcard(); // Init flashcards too
         }, 500);
     }
 
@@ -682,6 +777,7 @@
         for (let i = 0; i < buttons.length; i++) buttons[i].className = buttons[i].className.replace(" active", "");
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
+        
         if (tabName === 'list-tab') clearInterval(timerInterval);
         else if (tabName === 'game-tab' && isTimerEnabled && current < gameData.length) startTimer();
     }
